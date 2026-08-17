@@ -54,14 +54,15 @@ import {
   Radar,
   Moon,
   Sun,
+  Flame,
+  Crown,
+  Compass,
+  Smile,
+  Coffee,
+  Truck,
+  FlameKindling,
 } from "lucide-react";
 
-// ---------------------------------------------------------------------------
-// Design tokens (İŞİMHazır brand sheet) — CSS-variable based so the whole
-// app (including every screen carried over from the previous build) can
-// switch between light and dark instantly via the `.dark` class on the
-// phone-frame wrapper.
-// ---------------------------------------------------------------------------
 const COLORS = {
   primary: "var(--c-primary)",
   secondary: "var(--c-secondary)",
@@ -108,7 +109,6 @@ const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Poppi
   animation: radar-spin 3s linear infinite;
 }`;
 
-// Shared category taxonomy — tinted with RGBA so chips auto-adapt to dark/light.
 const CATEGORIES = [
   { key: "all", label: "Tümü", icon: LayoutGrid, color: COLORS.secondary, tint: "rgba(148,163,184,0.16)" },
   { key: "Garson", label: "Garson", icon: UtensilsCrossed, color: COLORS.primary, tint: "rgba(37,99,235,0.12)" },
@@ -122,7 +122,30 @@ const CATEGORIES = [
   { key: "Teknoloji", label: "Teknoloji", icon: Laptop, color: COLORS.accent, tint: "rgba(249,115,22,0.12)" },
 ];
 
-// Difficulty tiers surfaced as a badge on every job card / detail screen.
+// 20 Detaylı Rozet Listesi
+const ALL_BADGES = [
+  { id: 1, title: "Hızlı Yanıt Veren", icon: Zap, gradient: "linear-gradient(135deg, #93C5FD, #2563EB)", desc: "Son 10 mesajlaşmada ortalama 10 dakika içinde dönüş yaparak açılır.", unlocked: true },
+  { id: 2, title: "Süper Çalışan", icon: Star, gradient: "linear-gradient(135deg, #FCD34D, #F97316)", desc: "Tamamlanan işlerde 4.8+ ortalama puan tutturunca açılır.", unlocked: true },
+  { id: 3, title: "Dakik Personel", icon: Clock, gradient: "linear-gradient(135deg, #6EE7B7, #10B981)", desc: "İşe başlama saatlerine %100 zamanında uyarak 5 görev tamamlama ile açılır.", unlocked: true },
+  { id: 4, title: "Seri İşçi", icon: Flame, gradient: "linear-gradient(135deg, #F87171, #DC2626)", desc: "Arka arkaya 3 gün boyunca farklı görevlerde çalışarak açılır.", unlocked: false },
+  { id: 5, title: "Esnek Güç", icon: Compass, gradient: "linear-gradient(135deg, #A78BFA, #7C3AED)", desc: "Hem gece vardiyası hem gündüz işlerinde başarıyla görev alarak açılır.", unlocked: false },
+  { id: 6, title: "Güvenilir Profil", icon: Shield, gradient: "linear-gradient(135deg, #34D399, #059669)", desc: "Kimlik doğrulama adımını başarıyla tamamlayınca otomatik açılır.", unlocked: true },
+  { id: 7, title: "Onaylı Esnaf Dostu", icon: Users, gradient: "linear-gradient(135deg, #60A5FA, #1D4ED8)", desc: "5 farklı işverenden olumlu referans alınca açılır.", unlocked: false },
+  { id: 8, title: "Kıdemli Üye", icon: Award, gradient: "linear-gradient(135deg, #F472B6, #DB2777)", desc: "Platformda 6 ayını dolduran kullanıcılara verilir.", unlocked: false },
+  { id: 9, title: "Kusursuz Sicil", icon: ShieldCheck, gradient: "linear-gradient(135deg, #38BDF8, #0284C7)", desc: "Hiçbir iş iptali veya cezası almadan 10 görev tamamlama ile açılır.", unlocked: false },
+  { id: 10, title: "İletişim Uzmanı", icon: Smile, gradient: "linear-gradient(135deg, #FBBF24, #D97706)", desc: "İşverenlerle olan mesajlaşma başarısı ve nezaket puanı ile açılır.", unlocked: true },
+  { id: 11, title: "Garsonlar Kralı", icon: Coffee, gradient: "linear-gradient(135deg, #FB7185, #E11D48)", desc: "Yeme-içme sektöründe 5+ başarılı hizmet verince açılır.", unlocked: false },
+  { id: 12, title: "Hızlı Kurye", icon: Truck, gradient: "linear-gradient(135deg, #4ADE80, #16A34A)", desc: "Kurye ve lojistik kategorisinde 10 teslimat tamamlayınca açılır.", unlocked: false },
+  { id: 13, title: "Temizlik Gurusu", icon: Sparkles, gradient: "linear-gradient(135deg, #818CF8, #4F46E5)", desc: "Temizlik görevlerinde tam puan alarak açılır.", unlocked: false },
+  { id: 14, title: "Depo Canavarı", icon: Package, gradient: "linear-gradient(135deg, #FB923C, #C2410C)", desc: "Fiziksel güç ve lojistik/depo işlerinde 5 kez görev alınca açılır.", unlocked: false },
+  { id: 15, title: "Etkinlik Akıncısı", icon: Users, gradient: "linear-gradient(135deg, #C084FC, #9333EA)", desc: "Konser, fuar ve organizasyon görevlerinde tam yetkinlik kazanınca açılır.", unlocked: false },
+  { id: 16, title: "İlk Adım", icon: Sparkle, gradient: "linear-gradient(135deg, #38BDF8, #2563EB)", desc: "Platformdaki ilk görevini başarıyla tamamlayan herkese verilir.", unlocked: true },
+  { id: 17, title: "Yevmiye Canavarı", icon: Wallet, gradient: "linear-gradient(135deg, #48BB78, #22543D)", desc: "Tek bir haftada toplam 5.000 ₺ kazanca ulaşınca açılır.", unlocked: false },
+  { id: 18, title: "Günün Kurtarıcısı", icon: FlameKindling, gradient: "linear-gradient(135deg, #ED8936, #9C4221)", desc: "Acil/anlık açılan 'Hemen Lazım' işlerine gidip görevi tamamlayınca açılır.", unlocked: false },
+  { id: 19, title: "5 Yıldızlı Yıldız", icon: Star, gradient: "linear-gradient(135deg, #ECC94B, #B7791F)", desc: "Toplamda 20 adet 5 yıldızlı değerlendirme alınca açılır.", unlocked: false },
+  { id: 20, title: "İşin Hazır Efsanesi", icon: Crown, gradient: "linear-gradient(135deg, #9F7AEA, #553C9A)", desc: "Platformda 50 toplam görevi geride bırakan elite çalışanlara verilir.", unlocked: false },
+];
+
 const DIFFICULTY_STYLES: Record<string, { bg: string; color: string }> = {
   "Kolay": { bg: "rgba(16,185,129,0.15)", color: COLORS.success },
   "Orta": { bg: "rgba(249,115,22,0.15)", color: COLORS.accent },
@@ -149,11 +172,6 @@ const getInitials = (name: string) =>
     .join("")
     .toUpperCase();
 
-// ---------------------------------------------------------------------------
-// Persistent auth store (localStorage) — accounts survive page reloads, and
-// the session key keeps a signed-in user logged in until they explicitly
-// log out. There is no backend here, so this is a client-only "database".
-// ---------------------------------------------------------------------------
 const USERS_STORAGE_KEY = "isimhazir_users";
 const SESSION_STORAGE_KEY = "isimhazir_session";
 const THEME_STORAGE_KEY = "isimhazir_theme";
@@ -173,8 +191,6 @@ function saveUsers(users: any[]) {
   window.localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
 }
 
-// Guarantees a demo account always exists so the login screen is testable
-// out of the box: omersckn7@gmail.com / omer123.
 function seedDefaultUser(): any[] {
   const users = loadUsers();
   if (users.length > 0) return users;
@@ -217,8 +233,6 @@ function clearSession() {
   window.localStorage.removeItem(SESSION_STORAGE_KEY);
 }
 
-// Reads a selected <input type="file"> image and resolves it as a Base64
-// data URL so it can be stored directly on the user object / localStorage.
 function readFileAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -228,9 +242,6 @@ function readFileAsBase64(file: File): Promise<string> {
   });
 }
 
-// Shared avatar: shows the uploaded photo when present, otherwise falls back
-// to the gradient-and-initials avatar. When `onPick` is provided, tapping
-// the circle (or its camera badge) opens the device's photo picker.
 function Avatar({
   name,
   photo,
@@ -285,9 +296,6 @@ function Avatar({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Reusable phone chrome: status bar + notch-free frame
-// ---------------------------------------------------------------------------
 function StatusBar({ dark }: { dark?: boolean }) {
   return (
     <div
@@ -336,9 +344,6 @@ function BottomNav({ active, onNavigate }: { active: string; onNavigate: (key: s
   );
 }
 
-// ---------------------------------------------------------------------------
-// Onboarding flow
-// ---------------------------------------------------------------------------
 function SplashScreen() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center" style={{ background: "#0F172A" }}>
@@ -448,9 +453,6 @@ function UserTypeScreen({ onPickWorker }: { onPickWorker: () => void }) {
   );
 }
 
-// Real localStorage-backed login + sign up. Accounts persist across
-// reloads, so the same e-mail/password combination always works, and a new
-// account created via "Kayıt Ol" is saved immediately and can log back in.
 function LoginScreen({ onLogin }: { onLogin: (record: any) => void }) {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
@@ -491,7 +493,6 @@ function LoginScreen({ onLogin }: { onLogin: (record: any) => void }) {
       return;
     }
 
-    // Kayıt Ol (sign up)
     if (!name.trim() || !trimmedEmail || !password || !confirmPassword) {
       setError("Lütfen tüm alanları doldurun.");
       return;
@@ -675,9 +676,6 @@ function LoginScreen({ onLogin }: { onLogin: (record: any) => void }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Job data
-// ---------------------------------------------------------------------------
 const JOB_LISTINGS = [
   {
     id: 1,
@@ -841,17 +839,11 @@ const JOB_LISTINGS = [
   },
 ];
 
-// Strips thousands-separator dots before parsing, so pay values like
-// "1.400 ₺ / Günlük" compare correctly against the salary filter slider.
 const parsePay = (payStr: string) => parseInt(payStr.replace(/\./g, ""), 10) || 0;
 const WORK_TYPES = ["Tam Zamanlı", "Yarı Zamanlı"];
 const DISTANCE_OPTIONS = [5, 10, 20];
-const AVG_MARKET_PAY = 900; // reference point for the "Maaş Analizi" premium insight
+const AVG_MARKET_PAY = 900;
 
-// ---------------------------------------------------------------------------
-// Shared job card — favorite toggle, difficulty, and a premium "Uyum Skoru"
-// (match score) chip that gives a lightweight AI-matching feel.
-// ---------------------------------------------------------------------------
 function JobCard({
   job,
   isFavorite,
@@ -865,8 +857,6 @@ function JobCard({
   onOpen: () => void;
   onQuickApply?: (job: any) => void;
 }) {
-  // PREMIUM: basit bir "Uyum Skoru" — ilan id'sinden türetilmiş, sabit ama
-  // ilana özgü bir yüzde, kullanıcıya akıllı eşleştirme hissi verir.
   const matchScore = 80 + (job.id % 18);
 
   return (
@@ -933,10 +923,6 @@ function JobCard({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Representative (non-functional) map view — stylized background + pins
-// showing up to 4 of the currently filtered jobs, tappable into their detail.
-// ---------------------------------------------------------------------------
 const PIN_POSITIONS = [
   { left: "24%", top: "30%" },
   { left: "64%", top: "20%" },
@@ -986,8 +972,6 @@ function MapView({ jobs, onOpenJob }: { jobs: any[]; onOpenJob: (job: any) => vo
   );
 }
 
-// PREMIUM FEATURE: Mesafe Radarı — Home screen'de 3. görünüm modu (liste /
-// harita / radar). Yakındaki ilanları taranan bir radar ekranı gibi gösterir.
 const RADAR_PIN_POSITIONS = [
   { top: "25%", left: "30%" },
   { top: "70%", left: "65%" },
@@ -1034,9 +1018,6 @@ function RadarView({ jobs, onOpenJob }: { jobs: any[]; onOpenJob: (job: any) => 
   );
 }
 
-// ---------------------------------------------------------------------------
-// Bottom-sheet filter modal
-// ---------------------------------------------------------------------------
 function FilterModal({ minPay, setMinPay, workTypes, toggleWorkType, maxDistance, setMaxDistance, onReset, onClose, resultCount }: any) {
   return (
     <div className="absolute inset-0 flex flex-col justify-end" style={{ background: "rgba(0,0,0,0.55)", zIndex: 50 }} onClick={onClose}>
@@ -1121,9 +1102,6 @@ function FilterModal({ minPay, setMinPay, workTypes, toggleWorkType, maxDistance
   );
 }
 
-// ---------------------------------------------------------------------------
-// Wallet / earnings modal
-// ---------------------------------------------------------------------------
 function WalletModal({ onClose }: { onClose: () => void }) {
   const earnings = [
     { id: 1, title: "Garsonluk", company: "İstanbul Catering", amount: "+850 ₺", date: "Dün" },
@@ -1179,12 +1157,9 @@ function WalletModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Home
-// ---------------------------------------------------------------------------
 function WorkerHomeScreen({ user, onOpenJob, onNavigate, favorites, onToggleFavorite, onQuickApply, searchHistory, onAddSearchHistory }: any) {
   const [activeCategory, setActiveCategory] = useState("all");
-  const [viewMode, setViewMode] = useState("list"); // "list" | "map" | "radar"
+  const [viewMode, setViewMode] = useState("list");
   const [showFilters, setShowFilters] = useState(false);
   const [minPay, setMinPay] = useState(0);
   const [workTypes, setWorkTypes] = useState<string[]>([]);
@@ -1381,11 +1356,6 @@ function WorkerHomeScreen({ user, onOpenJob, onNavigate, favorites, onToggleFavo
   );
 }
 
-// ---------------------------------------------------------------------------
-// Job Detail — now includes two premium insight cards: "Maaş Analizi" (how
-// this pay compares to the market average) and "Güvenilir İşveren Profili"
-// (an employer trust score card).
-// ---------------------------------------------------------------------------
 function JobDetailScreen({ job, onBack, onApply, onMessage }: any) {
   const payVal = parsePay(job.pay);
   const payDiff = Math.round(((payVal - AVG_MARKET_PAY) / AVG_MARKET_PAY) * 100);
@@ -1425,7 +1395,6 @@ function JobDetailScreen({ job, onBack, onApply, onMessage }: any) {
           {job.difficulty && <DifficultyBadge level={job.difficulty} />}
         </div>
 
-        {/* PREMIUM: Maaş Analizi */}
         <div className="mt-2 flex items-center gap-1.5">
           <TrendingUp size={14} color={payDiff >= 0 ? COLORS.success : "#EF4444"} />
           <span style={{ fontFamily: "Poppins", fontSize: 11, color: payDiff >= 0 ? COLORS.success : "#EF4444", fontWeight: 500 }}>
@@ -1457,7 +1426,6 @@ function JobDetailScreen({ job, onBack, onApply, onMessage }: any) {
           </div>
         </div>
 
-        {/* PREMIUM: İşveren Güven Skoru Kartı */}
         <div className="mt-6 rounded-2xl p-4 border" style={{ background: COLORS.bg, borderColor: COLORS.border }}>
           <div className="flex items-center gap-2 mb-3">
             <ShieldCheck size={18} color={COLORS.primary} />
@@ -1533,9 +1501,6 @@ function ApplicationSuccessScreen({ onDone }: { onDone: () => void }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Messages
-// ---------------------------------------------------------------------------
 const MESSAGES = [
   { id: 1, name: "İstanbul Catering", initial: "İ", color: "#2563EB", preview: "Yarınki etkinlik için 18:00'de bekleriz.", time: "14:32", unread: true },
   { id: 2, name: "Marmara Lojistik", initial: "M", color: "#F97316", preview: "Merhaba, yarınki iş için...", time: "13:45", unread: false },
@@ -1706,12 +1671,6 @@ function ChatDetailScreen({ chat, onBack }: any) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Profile — badges, sector/language/verified skills. Sector skills are
-// chosen from a fixed pool over on the Edit Profile screen (toggle chips);
-// this screen only displays the current selection. New (blank-slate)
-// accounts get a simplified, encouraging view instead of pre-filled data.
-// ---------------------------------------------------------------------------
 const SKILL_POOL = [
   "POS Kullanımı",
   "B Sınıfı Ehliyet",
@@ -1730,14 +1689,22 @@ const LANGUAGE_SKILLS = [
 ];
 const VERIFIED_SKILLS = ["Hijyen Sertifikası", "Hızlı Yanıt Veren Çalışan", "5 Yıldızlı Hizmet Uzmanı"];
 
-const BADGES = [
-  { key: "super", icon: Star, label: "Süper Çalışan", gradient: "linear-gradient(135deg, #FCD34D, #F97316)" },
-  { key: "fast", icon: Zap, label: "Hızlı Yanıt Veren", gradient: "linear-gradient(135deg, #93C5FD, #2563EB)" },
-  { key: "punctual", icon: Clock, label: "Dakik", gradient: "linear-gradient(135deg, #6EE7B7, #10B981)" },
-];
-
-function WorkerProfileScreen({ user, skills, isNewUser, onChangeAvatar, onNavigate, onOpenSettings, onOpenWallet, completedJobsCount }: any) {
+function WorkerProfileScreen({
+  user,
+  skills,
+  isNewUser,
+  onChangeAvatar,
+  onNavigate,
+  onOpenSettings,
+  onOpenWallet,
+  completedJobsCount,
+  showcasedBadgeIds,
+  onUpdateShowcase
+}: any) {
   const [cvDownloaded, setCvDownloaded] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<any>(null);
+  const [isEditingShowcase, setIsEditingShowcase] = useState(false);
+  const [tempShowcase, setTempShowcase] = useState<number[]>(showcasedBadgeIds);
 
   const handleDownloadCV = () => {
     setCvDownloaded(true);
@@ -1751,6 +1718,23 @@ function WorkerProfileScreen({ user, skills, isNewUser, onChangeAvatar, onNaviga
     if (completedJobsCount >= 5) achievements.push({ emoji: "🌟", label: "5+ Başarılı Görev" });
     achievements.push({ emoji: "⚡", label: "Hızlı Yanıt Veren" });
   }
+
+  const toggleTempBadge = (id: number) => {
+    if (tempShowcase.includes(id)) {
+      setTempShowcase(tempShowcase.filter((bId) => bId !== id));
+    } else {
+      if (tempShowcase.length < 5) {
+        setTempShowcase([...tempShowcase, id]);
+      }
+    }
+  };
+
+  const saveShowcase = () => {
+    onUpdateShowcase(tempShowcase);
+    setIsEditingShowcase(false);
+  };
+
+  const renderedShowcase = ALL_BADGES.filter(b => showcasedBadgeIds.includes(b.id));
 
   return (
     <div className="w-full h-full flex flex-col relative" style={{ background: COLORS.bg }}>
@@ -1809,43 +1793,56 @@ function WorkerProfileScreen({ user, skills, isNewUser, onChangeAvatar, onNaviga
           </div>
         </div>
 
+        {/* 20 Rozetli Vitrin Bölümü */}
         <div className="px-6 mt-5">
-          <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 13, color: COLORS.secondary }}>Rozetler</div>
-          {isNewUser ? (
-            <div
-              className="flex items-center gap-3 mt-3 rounded-2xl p-4"
-              style={{ background: "rgba(37,99,235,0.06)", border: "1px dashed rgba(59,130,246,0.4)" }}
+          <div className="flex items-center justify-between mb-2">
+            <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 13, color: COLORS.secondary }}>Rozet Vitrini</div>
+            <button
+              onClick={() => { setTempShowcase(showcasedBadgeIds); setIsEditingShowcase(true); }}
+              className="cursor-pointer"
+              style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 12, color: COLORS.primary }}
             >
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #93C5FD, #2563EB)", boxShadow: "0 4px 12px rgba(37,99,235,0.25)" }}
-              >
-                <Sparkle size={22} color="#FFFFFF" strokeWidth={2} />
-              </div>
-              <div>
-                <div style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 13, color: COLORS.secondary }}>Yeni Kullanıcı</div>
-                <div style={{ fontFamily: "Poppins", fontWeight: 400, fontSize: 11, color: COLORS.muted, marginTop: 2 }}>
-                  İşimHazır'a hoş geldin! İlk görevini tamamladıkça yeni rozetler kazanacaksın.
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex gap-3 mt-3">
-              {BADGES.map((b) => {
-                const Icon = b.icon;
-                return (
-                  <div key={b.key} className="flex flex-col items-center gap-1.5 flex-1">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: b.gradient, boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>
-                      <Icon size={24} color="#FFFFFF" strokeWidth={2} />
-                    </div>
-                    <span className="text-center" style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 10, color: COLORS.muted, lineHeight: 1.3 }}>
-                      {b.label}
-                    </span>
+              Vitrini Düzenle
+            </button>
+          </div>
+
+          <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
+            {renderedShowcase.length === 0 && (
+              <span style={{ fontFamily: "Poppins", fontSize: 12, color: COLORS.textLight, padding: "8px 0" }}>
+                Vitrinde henüz rozet yok. Düzenle diyerek seçebilirsin.
+              </span>
+            )}
+            {renderedShowcase.map((badge) => {
+              const Icon = badge.icon;
+              return (
+                <button
+                  key={badge.id}
+                  onClick={() => setSelectedBadge(badge)}
+                  className="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer relative"
+                  style={{ width: 64 }}
+                >
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center relative"
+                    style={{
+                      background: badge.unlocked ? badge.gradient : COLORS.border,
+                      boxShadow: badge.unlocked ? "0 4px 12px rgba(0,0,0,0.12)" : "none",
+                      opacity: badge.unlocked ? 1 : 0.6,
+                    }}
+                  >
+                    <Icon size={24} color="#FFFFFF" strokeWidth={2} />
+                    {!badge.unlocked && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: COLORS.secondary }}>
+                        <Lock size={10} color="#FFFFFF" />
+                      </span>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <span className="text-center truncate w-full" style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 9, color: COLORS.muted }}>
+                    {badge.title}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {!isNewUser && (
@@ -1869,8 +1866,7 @@ function WorkerProfileScreen({ user, skills, isNewUser, onChangeAvatar, onNaviga
         <div className="px-6 mt-6">
           <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 13, color: COLORS.secondary }}>Hakkında</div>
           <div style={{ fontFamily: "Poppins", fontWeight: 400, fontSize: 12, color: COLORS.muted, marginTop: 6, lineHeight: 1.7 }}>
-            {user.bio ||
-              "Henüz bir açıklama eklenmedi. Profilini Düzenle ekranından kendini işverenlere tanıtabilirsin."}
+            {user.bio || "Henüz bir açıklama eklenmedi. Profilini Düzenle ekranından kendini işverenlere tanıtabilirsin."}
           </div>
         </div>
 
@@ -1904,7 +1900,7 @@ function WorkerProfileScreen({ user, skills, isNewUser, onChangeAvatar, onNaviga
             ))}
             {skills.length === 0 && (
               <span style={{ fontFamily: "Poppins", fontSize: 11, color: COLORS.textLight }}>
-                Henüz sektörel yetenek eklenmedi. "Profili Düzenle"den yetenek havuzundan seçebilirsin.
+                Henüz sektörel yetenek eklenmedi. "Profili Düzenle"den seçebilirsin.
               </span>
             )}
           </div>
@@ -1923,40 +1919,7 @@ function WorkerProfileScreen({ user, skills, isNewUser, onChangeAvatar, onNaviga
               </span>
             ))}
           </div>
-
-          {!isNewUser && (
-            <>
-              <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 11, color: COLORS.textLight, marginTop: 14, marginBottom: 6 }}>ONAYLI YETKİNLİKLER</div>
-              <div className="flex flex-wrap gap-2">
-                {VERIFIED_SKILLS.map((s) => (
-                  <span
-                    key={s}
-                    className="px-3 py-1.5 rounded-full flex items-center gap-1.5"
-                    style={{ background: "rgba(16,185,129,0.15)", color: COLORS.success, fontFamily: "Poppins", fontWeight: 600, fontSize: 11 }}
-                  >
-                    <BadgeCheck size={12} />
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </>
-          )}
         </div>
-
-        {!isNewUser && (
-          <div className="px-6 mt-5">
-            <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 13, color: COLORS.secondary }}>Sertifikalar</div>
-            <div className="flex items-center gap-3 mt-2 rounded-xl p-3 border" style={{ background: COLORS.white, borderColor: COLORS.border }}>
-              <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(249,115,22,0.15)" }}>
-                <Award size={16} color={COLORS.accent} />
-              </div>
-              <div>
-                <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 12, color: COLORS.secondary }}>Hijyen Sertifikası</div>
-                <div style={{ fontFamily: "Poppins", fontWeight: 400, fontSize: 11, color: COLORS.textLight }}>2023</div>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="px-6 mt-6">
           <button
@@ -1976,24 +1939,118 @@ function WorkerProfileScreen({ user, skills, isNewUser, onChangeAvatar, onNaviga
               </>
             )}
           </button>
-          {cvDownloaded && (
-            <div className="flex items-center justify-center gap-1.5 mt-3">
-              <CheckCircle2 size={14} color={COLORS.success} />
-              <span style={{ fontFamily: "Poppins", fontWeight: 500, fontSize: 12, color: COLORS.success }}>Profiliniz PDF olarak hazırlandı</span>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* VİTRİN DÜZENLEME MODALI */}
+      {isEditingShowcase && (
+        <div className="absolute inset-0 flex flex-col justify-end" style={{ background: "rgba(0,0,0,0.6)", zIndex: 70 }} onClick={() => setIsEditingShowcase(false)}>
+          <div
+            className="rounded-t-3xl px-5 pt-4 pb-8 border-t flex flex-col"
+            style={{ background: COLORS.white, borderColor: COLORS.border, height: "85%" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1.5 rounded-full mx-auto mb-4 flex-shrink-0" style={{ background: COLORS.border }} />
+            <div className="flex items-center justify-between mb-2 flex-shrink-0">
+              <span style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 16, color: COLORS.secondary }}>Vitrini Düzenle</span>
+              <button onClick={() => setIsEditingShowcase(false)} className="w-7 h-7 rounded-full flex items-center justify-center cursor-pointer" style={{ background: COLORS.bg }}>
+                <X size={14} color={COLORS.secondary} />
+              </button>
+            </div>
+            <div className="mb-4 flex-shrink-0" style={{ fontFamily: "Poppins", fontSize: 12, color: COLORS.muted }}>
+              Profilinde öne çıkarmak istediğin en fazla 5 rozeti seç. <strong style={{ color: COLORS.primary }}>({tempShowcase.length}/5)</strong>
+            </div>
+
+            <div className="flex-1 overflow-y-auto no-scrollbar grid grid-cols-3 gap-3 pb-4">
+              {ALL_BADGES.map((badge) => {
+                const Icon = badge.icon;
+                const isSelected = tempShowcase.includes(badge.id);
+                const isDisabled = !isSelected && tempShowcase.length >= 5;
+                return (
+                  <button
+                    key={badge.id}
+                    onClick={() => toggleTempBadge(badge.id)}
+                    disabled={isDisabled}
+                    className="p-3 rounded-2xl flex flex-col items-center gap-2 border text-center cursor-pointer transition relative"
+                    style={{
+                      background: isSelected ? "rgba(37,99,235,0.06)" : COLORS.bg,
+                      borderColor: isSelected ? COLORS.primary : COLORS.border,
+                      opacity: isDisabled ? 0.4 : 1,
+                    }}
+                  >
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: COLORS.primary, zIndex: 10 }}>
+                        <CheckCircle2 size={12} color="#FFFFFF" />
+                      </div>
+                    )}
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center relative" style={{ background: badge.unlocked ? badge.gradient : COLORS.border, opacity: badge.unlocked ? 1 : 0.6 }}>
+                      <Icon size={22} color="#FFFFFF" />
+                      {!badge.unlocked && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: COLORS.secondary }}>
+                          <Lock size={8} color="#FFFFFF" />
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 10, color: COLORS.secondary, lineHeight: 1.2 }}>{badge.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={saveShowcase}
+              className="w-full py-3.5 rounded-xl mt-4 cursor-pointer flex-shrink-0"
+              style={{ background: COLORS.primary, color: "#FFFFFF", fontFamily: "Poppins", fontWeight: 600, fontSize: 15 }}
+            >
+              Kaydet
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* TEKİL ROZET DETAY MODALI */}
+      {selectedBadge && (
+        <div className="absolute inset-0 flex items-center justify-center px-6" style={{ background: "rgba(0,0,0,0.65)", zIndex: 80 }} onClick={() => setSelectedBadge(null)}>
+          <div
+            className="w-full rounded-3xl p-6 border text-center relative"
+            style={{ background: COLORS.white, borderColor: COLORS.border, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={() => setSelectedBadge(null)} className="absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer" style={{ background: COLORS.bg }}>
+              <X size={14} color={COLORS.secondary} />
+            </button>
+
+            <div
+              className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center mb-4 relative"
+              style={{ background: selectedBadge.unlocked ? selectedBadge.gradient : COLORS.border, boxShadow: "0 8px 20px rgba(0,0,0,0.15)" }}
+            >
+              {React.createElement(selectedBadge.icon, { size: 36, color: "#FFFFFF", strokeWidth: 2 })}
+              {!selectedBadge.unlocked && (
+                <span className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: COLORS.secondary }}>
+                  <Lock size={12} color="#FFFFFF" />
+                </span>
+              )}
+            </div>
+
+            <div style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 18, color: COLORS.secondary }}>{selectedBadge.title}</div>
+            <div
+              className="inline-block px-3 py-1 rounded-full my-2"
+              style={{ background: selectedBadge.unlocked ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", color: selectedBadge.unlocked ? COLORS.success : "#EF4444", fontFamily: "Poppins", fontWeight: 600, fontSize: 11 }}
+            >
+              {selectedBadge.unlocked ? "✓ Kazanıldı (Aktif)" : "🔒 Kilitli Rozet"}
+            </div>
+            <div style={{ fontFamily: "Poppins", fontWeight: 400, fontSize: 13, color: COLORS.muted, lineHeight: 1.6, marginTop: 4 }}>
+              {selectedBadge.desc}
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav active="profile" onNavigate={onNavigate} />
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Applications / saved jobs — pending/history/saved tabs, ratings, and a new
-// "İş Gününü Takvime Ekle" premium action for accepted applications.
-// ---------------------------------------------------------------------------
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { bg: string; color: string }> = {
     "İnceleniyor": { bg: "rgba(245,158,11,0.18)", color: "#B45309" },
@@ -2149,7 +2206,6 @@ function ApplicationsScreen({ onNavigate, jobRatings, onRateJob, favorites, onTo
                 <span style={{ fontFamily: "Poppins", fontSize: 11, color: COLORS.textLight }}>{item.date}</span>
               </div>
 
-              {/* PREMIUM: Takvim Entegrasyonu — kabul edilen bekleyen başvurular için */}
               {tab === "pending" && item.status === "Kabul Edildi" && (
                 <button
                   onClick={() => onAddToCalendar(item)}
@@ -2197,9 +2253,6 @@ function ApplicationsScreen({ onNavigate, jobRatings, onRateJob, favorites, onTo
   );
 }
 
-// ---------------------------------------------------------------------------
-// Notifications
-// ---------------------------------------------------------------------------
 const NOTIFICATIONS = [
   {
     id: 1,
@@ -2272,9 +2325,6 @@ function NotificationsScreen({ onNavigate, onOpenNotification }: any) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Settings & sub-screens — now starts with a "Gece Modu" (dark mode) toggle.
-// ---------------------------------------------------------------------------
 const SETTINGS_ITEMS = [
   { key: "edit", icon: User, label: "Profili Düzenle" },
   { key: "identity", icon: BadgeCheck, label: "Kimlik Doğrulama", trailing: "Doğrulanmış", trailingColor: COLORS.success },
@@ -2318,7 +2368,6 @@ function SettingsScreen({ user, isDarkMode, onToggleDarkMode, onBack, onLogout, 
           </div>
         </div>
 
-        {/* PREMIUM: Gece Modu Anahtarı */}
         <div className="mt-6 rounded-2xl overflow-hidden border" style={{ background: COLORS.white, borderColor: COLORS.border }}>
           <div className="flex items-center justify-between px-4 py-3.5">
             <div className="flex items-center gap-3">
@@ -2395,10 +2444,6 @@ const fieldStyle: React.CSSProperties = {
 };
 const fieldLabelStyle: React.CSSProperties = { fontFamily: "Poppins", fontWeight: 600, fontSize: 12, color: COLORS.secondary, marginBottom: 6 };
 
-// Edit Profile — reads/writes the App-level `user` object (instant sync to
-// Profile header, Settings header, and the home greeting), lets the worker
-// pick sector skills from a fixed toggleable pool (no free text), and has a
-// wide "Hakkımda / Mini CV" textarea for a free-form résumé blurb.
 function EditProfileScreen({ user, skills, onToggleSkill, onUpdateUser, onChangeAvatar, onBack }: any) {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
@@ -2676,9 +2721,6 @@ function SupportCenterScreen({ onBack }: { onBack: () => void }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Lightweight toast
-// ---------------------------------------------------------------------------
 function Toast({ toast }: { toast: { message: string; icon: React.ReactNode } | null }) {
   if (!toast) return null;
   return (
@@ -2691,12 +2733,6 @@ function Toast({ toast }: { toast: { message: string; icon: React.ReactNode } | 
   );
 }
 
-// ---------------------------------------------------------------------------
-// App shell — all navigation is driven by useState, nothing is a dead click.
-// Global state: `user`, `skills` (toggled from the Edit Profile pool),
-// favorites, ratings, search history, the wallet modal, and now `isDarkMode`
-// (persisted to localStorage and applied via the `.dark` class).
-// ---------------------------------------------------------------------------
 export default function App() {
   const [screen, setScreen] = useState("splash");
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -2715,10 +2751,12 @@ export default function App() {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [toast, setToast] = useState<{ message: string; icon: React.ReactNode } | null>(null);
   const [showWallet, setShowWallet] = useState(false);
+  
+  // Rozet vitrini için saklanan state (başlangıçta açık olan birkaç rozet ID'si)
+  const [showcasedBadgeIds, setShowcasedBadgeIds] = useState<number[]>([1, 2, 3, 6, 16]);
 
   const isNewUser = skills.length === 0 && (!user.bio || user.bio.trim() === "");
 
-  // Splash screen doubles as the session + saved-theme check.
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (window.localStorage.getItem(THEME_STORAGE_KEY) === "dark") setIsDarkMode(true);
@@ -2809,7 +2847,6 @@ export default function App() {
     });
   };
 
-  // PREMIUM: Takvim Entegrasyonu — kabul edilen bir başvuruyu "takvime ekle".
   const addToCalendar = (item: any) => {
     showToast(`${item.title} takviminize eklendi!`, <CalendarPlus size={14} color="#FFFFFF" />);
   };
@@ -2907,7 +2944,6 @@ export default function App() {
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      {/* Phone frame */}
       <div
         className="relative overflow-hidden"
         style={{ width: 375, height: 812, borderRadius: 44, border: "10px solid #111827", boxShadow: "0 30px 60px rgba(0,0,0,0.35)", background: COLORS.bg }}
@@ -2957,6 +2993,8 @@ export default function App() {
             onOpenSettings={() => setScreen("settings")}
             onOpenWallet={() => setShowWallet(true)}
             completedJobsCount={isNewUser ? 0 : PAST_JOBS.length}
+            showcasedBadgeIds={showcasedBadgeIds}
+            onUpdateShowcase={(ids: number[]) => setShowcasedBadgeIds(ids)}
           />
         )}
         {screen === "settings" && (
