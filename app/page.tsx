@@ -1193,7 +1193,7 @@ function WalletModal({ onClose, showToast }: { onClose: () => void; showToast: (
             ) : (
               <>
                 <Landmark size={16} />
-                IBAN'a Aktar
+                {"IBAN'a Aktar"}
               </>
             )}
           </button>
@@ -2007,7 +2007,7 @@ function WorkerProfileScreen({
             ))}
             {skills.length === 0 && (
               <span style={{ fontFamily: "Poppins", fontSize: 11, color: COLORS.textLight }}>
-                Henüz sektörel yetenek eklenmedi. "Profili Düzenle"den seçebilirsin.
+                Henüz sektörel yetenek eklenmedi. {"\"Profili Düzenle\"den seçebilirsin."}
               </span>
             )}
           </div>
