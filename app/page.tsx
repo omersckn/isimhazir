@@ -61,6 +61,9 @@ import {
   Coffee,
   Truck,
   FlameKindling,
+  Trophy,
+  Loader2,
+  Landmark
 } from "lucide-react";
 
 const COLORS = {
@@ -844,6 +847,13 @@ const WORK_TYPES = ["Tam Zamanlı", "Yarı Zamanlı"];
 const DISTANCE_OPTIONS = [5, 10, 20];
 const AVG_MARKET_PAY = 900;
 
+const TOP_WORKERS = [
+  { id: 1, name: "Ali K.", rating: 4.9, jobs: 42, color: "#FCD34D", icon: Crown },
+  { id: 2, name: "Ayşe Y.", rating: 4.8, jobs: 38, color: "#E2E8F0", icon: Award },
+  { id: 3, name: "Mehmet D.", rating: 4.8, jobs: 31, color: "#FDBA74", icon: Award },
+  { id: 4, name: "Zeynep S.", rating: 4.7, jobs: 25, color: "transparent", icon: Star },
+];
+
 function JobCard({
   job,
   isFavorite,
@@ -1102,13 +1112,34 @@ function FilterModal({ minPay, setMinPay, workTypes, toggleWorkType, maxDistance
   );
 }
 
-function WalletModal({ onClose }: { onClose: () => void }) {
+function WalletModal({ onClose, showToast }: { onClose: () => void; showToast: (msg: string, icon?: React.ReactNode) => void }) {
   const earnings = [
     { id: 1, title: "Garsonluk", company: "İstanbul Catering", amount: "+850 ₺", date: "Dün" },
     { id: 2, title: "Motorlu Kurye", company: "Marmara Lojistik", amount: "+700 ₺", date: "20 Mayıs" },
     { id: 3, title: "Temizlik Görevlisi", company: "Ege Temizlik", amount: "+600 ₺", date: "15 Mayıs" },
     { id: 4, title: "Kasiyer", company: "Merkez Market", amount: "+750 ₺", date: "9 Mayıs" },
   ];
+
+  const [balance, setBalance] = useState(2900);
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleWithdraw = () => {
+    if (balance === 0) return;
+    setIsWithdrawing(true);
+    setTimeout(() => {
+      setIsWithdrawing(false);
+      setBalance(0);
+      setIsSuccess(true);
+      showToast("Para başarıyla banka hesabınıza aktarıldı.", <CheckCircle2 size={14} color="#FFFFFF" />);
+      
+      // Mesajı bir süre sonra sıfırlayabilirsiniz
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 3000);
+    }, 2000);
+  };
+
   return (
     <div
       className="absolute inset-0 flex items-center justify-center px-6"
@@ -1132,10 +1163,40 @@ function WalletModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        <div className="p-4 rounded-2xl mb-4" style={{ background: "linear-gradient(135deg, #2563EB, #1E40AF)", color: "#FFFFFF" }}>
+        <div className="p-4 rounded-2xl mb-4 relative" style={{ background: "linear-gradient(135deg, #2563EB, #1E40AF)", color: "#FFFFFF" }}>
           <div style={{ fontFamily: "Poppins", fontSize: 12, opacity: 0.85 }}>Toplam Net Kazanç</div>
-          <div style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 24, marginTop: 4 }}>2.900 ₺</div>
+          <div style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 24, marginTop: 4 }}>
+            {balance.toLocaleString("tr-TR")} ₺
+          </div>
           <div style={{ fontFamily: "Poppins", fontSize: 10, opacity: 0.75, marginTop: 2 }}>Bu ay 4 farklı görev tamamlandı</div>
+
+          <button
+            onClick={handleWithdraw}
+            disabled={isWithdrawing || balance === 0 || isSuccess}
+            className="w-full mt-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+            style={{
+              background: isSuccess ? COLORS.success : "rgba(255,255,255,0.2)",
+              color: "#FFFFFF",
+              fontFamily: "Poppins",
+              fontWeight: 600,
+              fontSize: 13,
+              opacity: (balance === 0 && !isSuccess) ? 0.6 : 1,
+            }}
+          >
+            {isWithdrawing ? (
+              <Loader2 className="animate-spin" size={16} />
+            ) : isSuccess ? (
+              <>
+                <CheckCircle2 size={16} />
+                Para Başarıyla Aktarıldı
+              </>
+            ) : (
+              <>
+                <Landmark size={16} />
+                IBAN'a Aktar
+              </>
+            )}
+          </button>
         </div>
 
         <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 13, color: COLORS.secondary, marginBottom: 8 }}>Son İşlem Geçmişi</div>
@@ -1280,7 +1341,53 @@ function WorkerHomeScreen({ user, onOpenJob, onNavigate, favorites, onToggleFavo
         </div>
       </div>
 
-      <div className="px-6 mt-5 flex items-center justify-between">
+      {/* HAFTANIN YILDIZLARI (Leaderboard) */}
+      <div className="mt-6 px-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Trophy size={18} color={COLORS.accent} />
+            <span style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 15, color: COLORS.secondary }}>Haftanın Yıldızları</span>
+          </div>
+          <span className="cursor-pointer" style={{ fontFamily: "Poppins", fontSize: 11, color: COLORS.primary, fontWeight: 600 }}>Tümünü Gör</span>
+        </div>
+        
+        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2" style={{ marginRight: -24, paddingRight: 24 }}>
+          {TOP_WORKERS.map((worker, idx) => (
+            <div key={worker.id} className="flex-shrink-0 rounded-2xl p-3 border relative flex flex-col items-center" style={{ width: 104, background: COLORS.white, borderColor: COLORS.border, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+              {idx === 0 && (
+                <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#FCD34D", border: `2px solid ${COLORS.white}`, zIndex: 10, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+                  <Crown size={14} color="#B45309" fill="#B45309" />
+                </div>
+              )}
+              {idx === 1 && (
+                <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#E2E8F0", border: `2px solid ${COLORS.white}`, zIndex: 10, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+                  <Award size={14} color="#475569" />
+                </div>
+              )}
+              {idx === 2 && (
+                <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center" style={{ background: "#FDBA74", border: `2px solid ${COLORS.white}`, zIndex: 10, boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+                  <Award size={14} color="#9A3412" />
+                </div>
+              )}
+              <div className="w-14 h-14 rounded-full flex items-center justify-center mb-2 relative" style={{ background: "linear-gradient(135deg,#2563EB,#0F172A)" }}>
+                <span style={{ fontFamily: "Poppins", fontWeight: 700, fontSize: 18, color: "#FFFFFF" }}>{worker.name.charAt(0)}</span>
+              </div>
+              <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 12, color: COLORS.secondary, textAlign: "center", width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {worker.name}
+              </div>
+              <div className="flex items-center gap-1 mt-1">
+                <Star size={12} color={COLORS.accent} fill={COLORS.accent} />
+                <span style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 11, color: COLORS.secondary }}>{worker.rating}</span>
+              </div>
+              <div style={{ fontFamily: "Poppins", fontWeight: 500, fontSize: 10, color: COLORS.muted, marginTop: 4 }}>
+                {worker.jobs} Görev
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="px-6 mt-6 flex items-center justify-between">
         <div style={{ fontFamily: "Poppins", fontWeight: 600, fontSize: 13, color: COLORS.secondary }}>{headingText}</div>
         <div className="flex items-center rounded-full p-1 border" style={{ background: COLORS.white, borderColor: COLORS.border }}>
           <button
@@ -3015,7 +3122,7 @@ export default function App() {
         {screen === "settingsLangNotif" && <LanguageNotificationScreen onBack={() => setScreen("settings")} />}
         {screen === "settingsSupport" && <SupportCenterScreen onBack={() => setScreen("settings")} />}
 
-        {showWallet && <WalletModal onClose={() => setShowWallet(false)} />}
+        {showWallet && <WalletModal onClose={() => setShowWallet(false)} showToast={showToast} />}
 
         <Toast toast={toast} />
       </div>
